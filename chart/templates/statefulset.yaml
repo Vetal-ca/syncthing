@@ -1,10 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "syncthing.fullname" . }}
   labels:
     {{- include "syncthing.labels" . | nindent 4 }}
 spec:
+  serviceName: "syncthing"
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
@@ -35,6 +36,11 @@ spec:
             - name: http
               containerPort: 8384
               protocol: TCP
+{{- range .Values.localServices }}
+            - name: {{ .name | lower | trunc 15 }}
+              containerPort: {{ .port }}
+              protocol: {{ .protocol }}
+{{- end }}
           livenessProbe:
             httpGet:
               path: /

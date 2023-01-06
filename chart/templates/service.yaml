@@ -22,13 +22,17 @@ metadata:
   name: {{ printf "%s-%s" (include "syncthing.fullname" $) .name | lower | quote | trunc 64 }}
   labels:
     {{- include "syncthing.labels" $ | nindent 4 }}
+  {{- with $.Values.localServiceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .type }}
   ports:
     - port: {{ .port }}
-      targetPort: {{ .name | lower }}
+      targetPort: {{ .name | lower | trunc 15 }}
       protocol: {{ .protocol | upper }}
-      name: {{ .name | lower }}
+      name: {{ .name | lower | trunc 15 }}
   selector:
     {{- include "syncthing.selectorLabels" $ | nindent 4 }}
 {{- end }}
